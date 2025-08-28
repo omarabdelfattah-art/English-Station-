@@ -1,0 +1,90 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "password": "password123",
+      "level": "A1",
+      "progress": 30,
+      "streak": 7,
+      "isOnboarded": true,
+      "placementTestCompleted": true
+    },
+    {
+      "id": 2,
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "password": "password123",
+      "level": "B1",
+      "progress": 65,
+      "streak": 12,
+      "isOnboarded": true,
+      "placementTestCompleted": true
+    }
+  ],
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Basic Greetings",
+      "level": "A1",
+      "completed": false,
+      "description": "Learn essential greetings and introductions"
+    },
+    {
+      "id": 2,
+      "title": "Family Members",
+      "level": "A1",
+      "completed": false,
+      "description": "Vocabulary for family relationships"
+    },
+    {
+      "id": 3,
+      "title": "Present Simple Tense",
+      "level": "A2",
+      "completed": false,
+      "description": "Master the present simple tense"
+    },
+    {
+      "id": 4,
+      "title": "Past Tense",
+      "level": "A2",
+      "completed": false,
+      "description": "Learn to talk about past events"
+    },
+    {
+      "id": 5,
+      "title": "Future Plans",
+      "level": "B1",
+      "completed": false,
+      "description": "Express future intentions and plans"
+    },
+    {
+      "id": 6,
+      "title": "Conditional Sentences",
+      "level": "B1",
+      "completed": false,
+      "description": "Master conditional structures"
+    }
+  ],
+  "quizzes": [
+    {
+      "id": 1,
+      "lessonId": 1,
+      "title": "Greetings Quiz",
+      "questions": []
+    },
+    {
+      "id": 2,
+      "lessonId": 2,
+      "title": "Family Quiz",
+      "questions": []
+    },
+    {
+      "id": 3,
+      "lessonId": 3,
+      "title": "Grammar Quiz",
+      "questions": []
+    }
+  ]
+}
