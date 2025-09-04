@@ -1,36 +1,23 @@
 import api from './api';
 
-const getQuizByLessonId = async (lessonId, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.get(`/quizzes/${lessonId}`, config);
-  return response.data;
+const getQuizByLessonId = async (lessonId) => {
+  const response = await api.get(`/quizzes?lessonId=${lessonId}`);
+  return response[0] || null;
 };
 
-const submitQuiz = async (quizData, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.post('/quizzes/submit', quizData, config);
-  return response.data;
+const submitQuiz = async (quizData) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const response = await api.post(`/quizzes/${quizData.quizId}/submit`, {
+    userId: user.id,
+    answers: quizData.answers
+  });
+  return response;
 };
 
-const getQuizResults = async (quizId, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.get(`/quizzes/results/${quizId}`, config);
-  return response.data;
+const getQuizResults = async (quizId) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const response = await api.get(`/quiz/results/${user.id}`);
+  return response.filter(result => result.quizId === parseInt(quizId));
 };
 
 const quizService = {

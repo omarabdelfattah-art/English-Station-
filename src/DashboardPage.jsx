@@ -1,3 +1,6 @@
+/**
+ * Import statements for DashboardPage dependencies
+ */
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -5,9 +8,29 @@ import { getLessons } from './context/slices/lessonsSlice';
 import ProgressBar from './components/ProgressBar';
 import Loader from './components/Loader';
 
+/**
+ * DashboardPage Component
+ *
+ * Main dashboard displaying user progress, statistics, and learning analytics.
+ * Provides overview of completed lessons, charts, and recent activity.
+ *
+ * Features:
+ * - Real-time progress tracking
+ * - Interactive progress charts
+ * - Learning streak displays
+ * - Recent activity feed
+ * - Responsive design
+ *
+ * @component
+ * @returns {JSX.Element} Dashboard with user analytics and progress
+ */
+
 const DashboardPage = () => {
   const dispatch = useDispatch();
-  const { lessons, isLoading } = useSelector((state) => state.lessons);
+  const { lessons, isLoading, isError, message } = useSelector((state) => state.lessons);
+
+  // Ensure lessons is always an array to prevent runtime errors
+  const safeLessons = lessons || [];
 
   // Mock progress data for chart
   const chartData = [
@@ -18,22 +41,23 @@ const DashboardPage = () => {
   ];
 
   useEffect(() => {
-    if (lessons.length === 0) {
+    // Only dispatch if lessons is initialized and empty
+    if (safeLessons.length === 0) {
       dispatch(getLessons());
     }
-  }, [dispatch, lessons.length]);
+  }, [dispatch, safeLessons.length]);
 
-  // Calculate stats from Redux state
+  // Calculate stats from Redux state with null-safe operations
   const stats = useMemo(() => {
-    const completedLessons = lessons.filter(lesson => lesson.completed).length;
+    const completedLessons = safeLessons.filter(lesson => lesson && lesson.completed).length;
     return {
-      totalLessons: lessons.length,
+      totalLessons: safeLessons.length,
       completedLessons,
       totalQuizzes: 0, // Will be updated when quizzes are in Redux
       averageScore: 85, // Mock data
       currentStreak: 7 // Mock data
     };
-  }, [lessons]);
+  }, [safeLessons]);
 
   const progressPercentage = stats.totalLessons > 0
     ? Math.round((stats.completedLessons / stats.totalLessons) * 100)

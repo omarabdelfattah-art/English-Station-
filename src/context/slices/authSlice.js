@@ -1,9 +1,38 @@
+/**
+ * Authentication Slice
+ *
+ * Redux slice for managing user authentication state and actions.
+ * Handles user registration, login, logout, profile updates, and onboarding flow.
+ *
+ * Features:
+ * - Async thunks for API calls
+ * - Local storage persistence
+ * - Error handling and loading states
+ * - User onboarding and placement test tracking
+ *
+ * @module authSlice
+ */
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Get user from localStorage
+/**
+ * Retrieves user data from localStorage on app initialization
+ * @constant {Object|null} user - Parsed user object from localStorage or null
+ */
 const user = JSON.parse(localStorage.getItem('user'));
 
+/**
+ * Initial state for the authentication slice
+ * @typedef {Object} AuthState
+ * @property {Object|null} user - Current authenticated user object
+ * @property {boolean} isLoading - Loading state for async operations
+ * @property {boolean} isSuccess - Success state for completed operations
+ * @property {boolean} isError - Error state for failed operations
+ * @property {string} message - Error or success message
+ * @property {boolean} isOnboarded - Whether user has completed onboarding
+ * @property {boolean} placementTestCompleted - Whether user has completed placement test
+ */
 const initialState = {
   user: user ? user : null,
   isLoading: false,
@@ -20,7 +49,7 @@ export const register = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       // Check if user already exists
-      const usersResponse = await axios.get('/users');
+      const usersResponse = await axios.get('/api/users');
       const existingUser = usersResponse.data.find(u => u.email === userData.email);
 
       if (existingUser) {
@@ -28,7 +57,7 @@ export const register = createAsyncThunk(
       }
 
       // Create new user
-      const response = await axios.post('/users', {
+      const response = await axios.post('/api/users', {
         ...userData,
         level: 'A1',
         progress: 0,
@@ -56,7 +85,7 @@ export const register = createAsyncThunk(
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
     // Get all users and find matching credentials
-    const response = await axios.get('/users');
+    const response = await axios.get('/api/users');
     const user = response.data.find(
       u => u.email === userData.email && u.password === userData.password
     );
@@ -87,7 +116,7 @@ export const updateProfile = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       const userId = thunkAPI.getState().auth.user.id;
-      const response = await axios.put(`/users/${userId}`, userData);
+      const response = await axios.put(`/api/users/${userId}`, userData);
 
       if (response.data) {
         localStorage.setItem('user', JSON.stringify(response.data));
@@ -110,7 +139,7 @@ export const completeOnboarding = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const userId = thunkAPI.getState().auth.user.id;
-      const response = await axios.put(`/users/${userId}`, {
+      const response = await axios.put(`/api/users/${userId}`, {
         isOnboarded: true
       });
 
@@ -135,7 +164,7 @@ export const completePlacementTest = createAsyncThunk(
   async (testData, thunkAPI) => {
     try {
       const userId = thunkAPI.getState().auth.user.id;
-      const response = await axios.put(`/users/${userId}`, {
+      const response = await axios.put(`/api/users/${userId}`, {
         placementTestCompleted: true,
         level: testData.level || 'A1'
       });

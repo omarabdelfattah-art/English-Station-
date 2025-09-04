@@ -100,3 +100,4 @@ db-*.json
 
 # Local development files
 .local
+.vercel

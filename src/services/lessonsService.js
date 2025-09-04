@@ -1,47 +1,29 @@
 import api from './api';
 
-const getLessons = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.get('/lessons', config);
-  return response.data;
+const getLessons = async () => {
+  const response = await api.get('/api/lessons');
+  return response;
 };
 
-const getLessonById = async (id, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.get(`/lessons/${id}`, config);
-  return response.data;
+const getLessonById = async (id) => {
+  const response = await api.get(`/api/lessons/${id}`);
+  return response;
 };
 
-const getCategories = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.get('/lessons/categories', config);
-  return response.data;
+const getCategories = async () => {
+  const response = await api.get('/api/lessons/categories');
+  return response;
 };
 
-const completeLesson = async (lessonId, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-  const response = await api.post(`/lessons/${lessonId}/complete`, {}, config);
-  return response.data;
+const completeLesson = async (lessonId) => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const response = await api.post('/api/progress', {
+    userId: user.id,
+    lessonId,
+    completed: true,
+    progress: 100
+  });
+  return response;
 };
 
 const lessonsService = {

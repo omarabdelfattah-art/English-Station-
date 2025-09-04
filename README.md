@@ -1,6 +1,6 @@
 # EngL App
 
-A modular React learning platform with Redux Toolkit, Axios, Tailwind CSS, PWA support, and mock API.
+A modular React learning platform with Redux Toolkit, Axios, Tailwind CSS, PWA support, and PostgreSQL database.
 
 ## Features
 
@@ -8,7 +8,7 @@ A modular React learning platform with Redux Toolkit, Axios, Tailwind CSS, PWA s
 - State management with Redux Toolkit
 - Axios with interceptors
 - Custom-styled Tailwind CSS
-- Mock API using JSON Server
+- PostgreSQL database with Prisma ORM
 - Custom hooks for auth, lessons, progress, UI
 - Linting & formatting (ESLint + Prettier)
 - PWA with service worker
@@ -17,33 +17,54 @@ A modular React learning platform with Redux Toolkit, Axios, Tailwind CSS, PWA s
 
 ## Getting Started
 
-### Prerequisites
+See [LOCAL_SETUP.md](LOCAL_SETUP.md) for detailed instructions on setting up the application for local development with PostgreSQL or Supabase.
 
-- Node.js (v14 or higher)
-- npm or yarn
+See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for detailed instructions on setting up Supabase for this project.
 
-### Install dependencies
+### Quick Start with Supabase (Recommended)
+
+1. Create a Supabase account at https://supabase.com
+2. Create a new project in your Supabase dashboard
+3. Update the credentials in `backend/.env`:
+   ```env
+   DATABASE_URL="postgresql://postgres:[YOUR_PROJECT_ID]:5432/postgres?schema=public"
+   SUPABASE_URL="https://[YOUR_PROJECT_ID].supabase.co"
+   SUPABASE_KEY="YOUR_ANON_KEY"
+   ```
+4. Install dependencies and run migrations:
+   ```bash
+   # Install frontend dependencies
+   npm install
+   
+   # Install backend dependencies
+   cd backend
+   npm install
+   
+   # Run database migrations
+   npx prisma migrate dev --name init
+   npx prisma generate
+   
+   # Start the backend
+   npm run dev
+   ```
+5. Start the React app (in a new terminal):
+   ```bash
+   npm start
+   ```
+
+### Quick Start with Docker (Alternative)
 
 ```bash
-npm install
-```
+# Start all services (PostgreSQL, backend)
+docker-compose up -d
 
-### Start the development environment
+# Run database migrations
+docker-compose exec backend npx prisma migrate dev --name init
+docker-compose exec backend npx prisma generate
 
-You need to run both the React app and the mock API server simultaneously:
-
-**Terminal 1 - Start the mock API:**
-```bash
-npx json-server --watch server/db.json --port 5000
-```
-
-**Terminal 2 - Start the React app:**
-```bash
+# Start the React app
 npm start
 ```
-
-The React app will be available at: http://localhost:3000
-The mock API will be available at: http://localhost:5000
 
 ### Demo Credentials
 
@@ -72,7 +93,9 @@ Use these credentials to test the authentication:
   - `hooks/` - Custom React hooks
   - `services/` - API and business logic
   - `DashboardPage.jsx`, `LessonsPage.jsx`, etc. - Main pages
-- `server/db.json` - Mock API data
+- `backend/` - Backend API with PostgreSQL database
+  - `src/` - API source code
+  - `prisma/` - Database schema and migrations
 - `public/service-worker.js` - PWA service worker
 
 ## Scripts

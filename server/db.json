@@ -21,6 +21,17 @@
       "streak": 12,
       "isOnboarded": true,
       "placementTestCompleted": true
+    },
+    {
+      "name": "omar abdelfattah ibrahim",
+      "email": "omarabdelfattah002@gmail.com",
+      "password": "gsxRJv59RkQn4h!",
+      "level": "A1",
+      "progress": 0,
+      "streak": 0,
+      "isOnboarded": true,
+      "placementTestCompleted": true,
+      "id": 3
     }
   ],
   "lessons": [

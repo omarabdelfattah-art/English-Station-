@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: english_learning_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: english_learning_app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - english_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: english_learning_api
+    environment:
+      DATABASE_URL: "postgresql://postgres:password@postgres:5432/english_learning_app?schema=public"
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - english_network
+
+volumes:
+  postgres_data:
+
+networks:
+  english_network:
+    driver: bridge

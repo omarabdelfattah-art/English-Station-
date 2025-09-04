@@ -1,0 +1,140 @@
+// This is your Prisma schema file for Supabase,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  password    String
+  refreshToken String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  progress    Progress[]
+  quizResults QuizResult[]
+
+  @@map("users")
+}
+
+// Lesson model
+model Lesson {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  progress    Progress[]
+  vocabulary  Vocabulary[]
+  quizzes     Quiz[]
+
+  @@map("lessons")
+}
+
+// Vocabulary model
+model Vocabulary {
+  id        Int      @id @default(autoincrement())
+  word      String
+  meaning   String
+  example   String?
+  lessonId  Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("vocabulary")
+}
+
+// Progress model
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  Int
+  completed Boolean  @default(false)
+  progress  Int      @default(0) // Percentage 0-100
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("progress")
+}
+
+// Quiz model
+model Quiz {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  lessonId    Int
+  timeLimit   Int?     // in minutes
+  createdAt   DateTime @default(now())
+
+  // Relations
+  lesson      Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions   Question[]
+  quizResults QuizResult[]
+
+  @@map("quizzes")
+}
+
+// Question model
+model Question {
+  id        Int      @id @default(autoincrement())
+  content   String
+  quizId    Int
+  type      String   // "multiple-choice", "true-false", "fill-blank"
+  createdAt DateTime @default(now())
+
+  // Relations
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers   Answer[]
+
+  @@map("questions")
+}
+
+// Answer model
+model Answer {
+  id          Int      @id @default(autoincrement())
+  content     String
+  isCorrect   Boolean
+  questionId  Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
+
+// QuizResult model
+model QuizResult {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    Int
+  score     Int      // 0-100
+  answers   String   // Store user's answers as JSON string
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_results")
+}

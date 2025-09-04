@@ -1,0 +1,9 @@
+{
+  "build": {
+    "env": {
+      "REACT_APP_API_URL": "https://[YOUR-DEPLOYED-BACKEND-URL]/api",
+      "REACT_APP_SUPABASE_URL": "https://zxaqgjmlqdyrkafjyvsa.supabase.co",
+      "REACT_APP_SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4YXFnam1scWR5cmthZmp5dnNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NTI0ODEsImV4cCI6MjA3MjUyODQ4MX0.KCdC7La3Fe_MQMuftpPYj0m-t_Ags0GBTv3PmTecanw"
+    }
+  }
+}
