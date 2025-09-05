@@ -18,6 +18,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './context/store';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -28,6 +29,7 @@ import LessonsPage from './LessonsPage';
 import QuizPage from './QuizPage';
 import ProfilePage from './ProfilePage';
 import SpeakingPracticePage from './SpeakingPracticePage';
+import AdminPage from './AdminPage';
 
 /**
  * Main Application Component
@@ -43,10 +45,11 @@ import SpeakingPracticePage from './SpeakingPracticePage';
 function App() {
   return (
     <Provider store={store}>
-      <Router>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          {/* Navigation Bar - Always visible */}
-          <Navbar />
+      <ThemeProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50 flex flex-col">
+            {/* Navigation Bar - Always visible */}
+            <Navbar />
 
           {/* Main Content Area */}
           <main className="flex-grow">
@@ -96,6 +99,14 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminPage />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </main>
 
@@ -103,6 +114,7 @@ function App() {
           <Footer />
         </div>
       </Router>
+      </ThemeProvider>
     </Provider>
   );
 }

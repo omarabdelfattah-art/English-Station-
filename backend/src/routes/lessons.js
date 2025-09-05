@@ -1,27 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { prisma } = require('../db');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Get all lessons
 router.get('/', async (req, res) => {
   try {
-    const lessons = await prisma.lesson.findMany({
-      include: {
-        vocabulary: true,
-        quizzes: {
-          include: {
-            questions: {
-              include: {
-                answers: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'asc'
-      }
-    });
+    const { data: lessons, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .order('createdat', { ascending: true });
+    
+    if (error) {
+      throw error;
+    }
+    
     res.json(lessons);
   } catch (error) {
     console.error('Error fetching lessons:', error);
@@ -33,23 +30,13 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const lesson = await prisma.lesson.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        vocabulary: true,
-        quizzes: {
-          include: {
-            questions: {
-              include: {
-                answers: true
-              }
-            }
-          }
-        }
-      }
-    });
+    const { data: lesson, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!lesson) {
+    if (error || !lesson) {
       return res.status(404).json({ error: 'Lesson not found' });
     }
 
@@ -63,17 +50,18 @@ router.get('/:id', async (req, res) => {
 // Create a new lesson
 router.post('/', async (req, res) => {
   try {
-    const { title, description, content } = req.body;
+    const { title, description, content, level } = req.body;
 
-    const lesson = await prisma.lesson.create({
-      data: {
-        title,
-        description,
-        content
-      }
-    });
+    const { data: lesson, error } = await supabase
+      .from('lessons')
+      .insert([{ title, description, content, level }])
+      .select();
 
-    res.status(201).json(lesson);
+    if (error) {
+      throw error;
+    }
+
+    res.status(201).json(lesson[0]);
   } catch (error) {
     console.error('Error creating lesson:', error);
     res.status(500).json({ error: 'Failed to create lesson' });
@@ -84,18 +72,23 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, content } = req.body;
+    const { title, description, content, level } = req.body;
 
-    const lesson = await prisma.lesson.update({
-      where: { id: parseInt(id) },
-      data: {
-        title,
-        description,
-        content
-      }
-    });
+    const { data: lesson, error } = await supabase
+      .from('lessons')
+      .update({ title, description, content, level })
+      .eq('id', id)
+      .select();
 
-    res.json(lesson);
+    if (error) {
+      throw error;
+    }
+
+    if (lesson.length === 0) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    res.json(lesson[0]);
   } catch (error) {
     console.error('Error updating lesson:', error);
     res.status(500).json({ error: 'Failed to update lesson' });
@@ -107,9 +100,14 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    await prisma.lesson.delete({
-      where: { id: parseInt(id) }
-    });
+    const { error } = await supabase
+      .from('lessons')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
 
     res.status(204).send();
   } catch (error) {

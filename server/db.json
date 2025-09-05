@@ -2,6 +2,18 @@
   "users": [
     {
       "id": 1,
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "admin123",
+      "level": "C2",
+      "progress": 100,
+      "streak": 30,
+      "isOnboarded": true,
+      "placementTestCompleted": true,
+      "isAdmin": true
+    },
+    {
+      "id": 2,
       "name": "John Doe",
       "email": "john@example.com",
       "password": "password123",
@@ -9,10 +21,11 @@
       "progress": 30,
       "streak": 7,
       "isOnboarded": true,
-      "placementTestCompleted": true
+      "placementTestCompleted": true,
+      "isAdmin": false
     },
     {
-      "id": 2,
+      "id": 3,
       "name": "Jane Smith",
       "email": "jane@example.com",
       "password": "password123",
@@ -20,7 +33,8 @@
       "progress": 65,
       "streak": 12,
       "isOnboarded": true,
-      "placementTestCompleted": true
+      "placementTestCompleted": true,
+      "isAdmin": false
     },
     {
       "name": "omar abdelfattah ibrahim",
@@ -31,7 +45,8 @@
       "streak": 0,
       "isOnboarded": true,
       "placementTestCompleted": true,
-      "id": 3
+      "id": 3,
+      "isAdmin": true
     }
   ],
   "lessons": [

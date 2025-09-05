@@ -12,8 +12,8 @@ router.get('/', async (req, res) => {
   try {
     const { data: users, error } = await supabase
       .from('users')
-      .select('id, email, username, createdat, updatedat')
-      .order('createdat', { ascending: false });
+      .select('id, email, username, created_at, updated_at')
+      .order('created_at', { ascending: false });
 
     if (error) {
       throw error;
@@ -49,7 +49,7 @@ router.get('/:id', async (req, res) => {
         *,
         lesson:lessons(*)
       `)
-      .eq('userid', id);
+      .eq('user_id', id);
 
     if (progressError) {
       throw progressError;
@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
         *,
         quiz:quizzes(*)
       `)
-      .eq('userid', id);
+      .eq('user_id', id);
 
     if (quizError) {
       throw quizError;
@@ -82,7 +82,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Refresh token - now using Supabase Auth
+// Refresh token
 router.post('/refresh-token', async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -91,30 +91,35 @@ router.post('/refresh-token', async (req, res) => {
       return res.status(401).json({ error: 'Refresh token required' });
     }
 
-    // Use Supabase Auth to refresh the session
-    const { data, error } = await supabase.auth.refreshSession({
-      refresh_token: refreshToken
-    });
+    // Find user with the refresh token
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('refresh_token', refreshToken)
+      .single();
 
-    if (error) {
-      return res.status(401).json({ error: error.message });
+    if (error || !user) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
     }
+
+    // Generate new tokens
+    const token = 'sample-jwt-token';
+    const newRefreshToken = 'sample-refresh-token';
 
     // Update user with new refresh token
     const { error: updateError } = await supabase
       .from('users')
-      .update({ refreshtoken: data.session?.refresh_token })
-      .eq('id', data.user?.id);
+      .update({ refresh_token: newRefreshToken })
+      .eq('id', user.id);
 
     if (updateError) {
-      console.error('Error updating refresh token in database:', updateError);
-      // We don't throw here because the Supabase refresh was successful
+      throw updateError;
     }
 
     // Return new tokens
     res.json({
-      token: data.session?.access_token,
-      refreshToken: data.session?.refresh_token
+      token,
+      refreshToken: newRefreshToken
     });
   } catch (error) {
     console.error('Token refresh error:', error);
@@ -122,58 +127,30 @@ router.post('/refresh-token', async (req, res) => {
   }
 });
 
-// Login user - now using Supabase Auth
+// Login user
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Use Supabase Auth to sign in
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      return res.status(401).json({ error: error.message });
-    }
-
-    // Check if user exists in our users table
-    const { data: user, error: userError } = await supabase
+    // Find user by email
+    const { data: user, error } = await supabase
       .from('users')
       .select('*')
-      .eq('id', data.user.id)
+      .eq('email', email)
       .single();
 
-    // If user doesn't exist in our table, create them
-    if (userError || !user) {
-      const { data: newUser, error: createError } = await supabase
-        .from('users')
-        .insert([{
-          id: data.user.id,
-          email: data.user.email,
-          username: data.user.user_metadata?.name || data.user.email,
-          refreshtoken: data.session?.refresh_token
-        }])
-        .select();
-
-      if (createError) {
-        throw createError;
-      }
-
-      // Return user data with tokens
-      return res.json({
-        id: newUser[0].id,
-        email: newUser[0].email,
-        username: newUser[0].username,
-        token: data.session?.access_token,
-        refreshToken: data.session?.refresh_token
-      });
+    if (error || !user || user.password !== password) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Update user with new refresh token
+    // Generate tokens (in a real app, you would use JWT)
+    const token = 'sample-jwt-token';
+    const refreshToken = 'sample-refresh-token';
+
+    // Update user with refresh token
     const { error: updateError } = await supabase
       .from('users')
-      .update({ refreshtoken: data.session?.refresh_token })
+      .update({ refresh_token: refreshToken })
       .eq('id', user.id);
 
     if (updateError) {
@@ -185,8 +162,8 @@ router.post('/login', async (req, res) => {
       id: user.id,
       email: user.email,
       username: user.username,
-      token: data.session?.access_token,
-      refreshToken: data.session?.refresh_token
+      token,
+      refreshToken
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -194,48 +171,32 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Create a new user - now using Supabase Auth
+// Create a new user
 router.post('/', async (req, res) => {
   try {
     const { email, username, password } = req.body;
 
-    // Use Supabase Auth to sign up
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name: username
-        }
-      }
-    });
+    // Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .or(`email.eq.${email},username.eq.${username}`)
+      .single();
 
-    if (error) {
-      return res.status(400).json({ error: error.message });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
     }
 
-    // Create user in our users table
-    const { data: user, error: insertError } = await supabase
+    const { data: user, error } = await supabase
       .from('users')
-      .insert([{
-        id: data.user.id,
-        email: data.user.email,
-        username: username,
-        refreshtoken: data.session?.refresh_token
-      }])
+      .insert([{ email, username, password }])
       .select();
 
-    if (insertError) {
-      throw insertError;
+    if (error) {
+      throw error;
     }
 
-    res.status(201).json({
-      id: user[0].id,
-      email: user[0].email,
-      username: user[0].username,
-      token: data.session?.access_token,
-      refreshToken: data.session?.refresh_token
-    });
+    res.status(201).json(user[0]);
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ error: 'Failed to create user' });

@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("DIRECT_URL")
 }
 
 // User model
@@ -17,6 +18,7 @@ model User {
   username    String   @unique
   password    String
   refreshToken String?
+  isAdmin     Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -137,4 +139,15 @@ model QuizResult {
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
   @@map("quiz_results")
+}
+
+// Setting model
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }

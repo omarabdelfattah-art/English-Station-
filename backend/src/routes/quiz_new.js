@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
           answers:quiz_answers(*)
         )
       `)
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       throw error;
@@ -346,8 +346,8 @@ router.get('/results/:userId', async (req, res) => {
           lesson:lessons(*)
         )
       `)
-      .eq('userid', userId)
-      .order('createdat', { ascending: false });
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
     if (error) {
       throw error;

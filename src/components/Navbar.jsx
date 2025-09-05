@@ -38,6 +38,11 @@ const Navbar = () => {
             <Link to="/profile" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 hover:scale-105">
               👤 Profile
             </Link>
+            {user.isAdmin && (
+              <Link to="/admin" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200 hover:scale-105">
+                ⚙️ Admin
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center space-x-3 ml-6 pl-6 border-l border-gray-300">

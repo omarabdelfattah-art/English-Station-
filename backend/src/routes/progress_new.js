@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
         user:users(id, username),
         lesson:lessons(*)
       `)
-      .order('createdat', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error) {
       throw error;
@@ -40,8 +40,8 @@ router.get('/user/:userId', async (req, res) => {
         *,
         lesson:lessons(*)
       `)
-      .eq('userid', userId)
-      .order('updatedat', { ascending: false });
+      .eq('user_id', userId)
+      .order('updated_at', { ascending: false });
 
     if (error) {
       throw error;
@@ -64,8 +64,8 @@ router.get('/lesson/:lessonId', async (req, res) => {
         *,
         user:users(id, username)
       `)
-      .eq('lessonid', lessonId)
-      .order('updatedat', { ascending: false });
+      .eq('lesson_id', lessonId)
+      .order('updated_at', { ascending: false });
 
     if (error) {
       throw error;
@@ -87,8 +87,8 @@ router.post('/', async (req, res) => {
     const { data: existingProgress } = await supabase
       .from('progress')
       .select('*')
-      .eq('userid', userId)
-      .eq('lessonid', lessonId)
+      .eq('user_id', userId)
+      .eq('lesson_id', lessonId)
       .single();
 
     if (existingProgress) {

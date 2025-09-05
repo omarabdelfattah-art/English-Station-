@@ -276,6 +276,8 @@ const LoginPage = () => {
           <p>Demo Credentials:</p>
           <p>john@example.com / password123</p>
           <p>jane@example.com / password123</p>
+          <p className="font-semibold text-blue-600">Admin: admin@example.com / admin123</p>
+          <p className="font-semibold text-blue-600">Admin: omarabdelfattah002@gmail.com / gsxRJv59RkQn4h!</p>
         </div>
       </div>
     </div>

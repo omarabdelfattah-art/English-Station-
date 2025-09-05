@@ -48,29 +48,29 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, thunkAPI) => {
     try {
-      // Check if user already exists
-      const usersResponse = await axios.get('/api/users');
-      const existingUser = usersResponse.data.find(u => u.email === userData.email);
+      // Use authService to register with Supabase
+      const { authService } = await import('../../services/authService');
+      const response = await authService.register(userData);
 
-      if (existingUser) {
-        throw new Error('User already exists with this email');
+      if (response.user) {
+        const userData = {
+          id: response.user.id,
+          email: response.user.email,
+          name: userData.name,
+          level: 'A1',
+          progress: 0,
+          streak: 0,
+          isOnboarded: true,
+          placementTestCompleted: true,
+          token: response.session?.access_token,
+          refreshToken: response.session?.refresh_token
+        };
+
+        localStorage.setItem('user', JSON.stringify(userData));
+        return userData;
+      } else {
+        throw new Error('Registration failed');
       }
-
-      // Create new user
-      const response = await axios.post('/api/users', {
-        ...userData,
-        level: 'A1',
-        progress: 0,
-        streak: 0,
-        isOnboarded: true,
-        placementTestCompleted: true
-      });
-
-      if (response.data) {
-        localStorage.setItem('user', JSON.stringify(response.data));
-      }
-
-      return response.data;
     } catch (error) {
       const message =
         (error.response && error.response.data && error.response.data.message) ||
@@ -84,18 +84,24 @@ export const register = createAsyncThunk(
 // Login user
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
-    // Get all users and find matching credentials
-    const response = await axios.get('/api/users');
-    const user = response.data.find(
-      u => u.email === userData.email && u.password === userData.password
-    );
+    // Use authService to login with Supabase
+    const { authService } = await import('../../services/authService');
+    const response = await authService.login(userData);
 
-    if (!user) {
-      throw new Error('Invalid email or password');
+    if (response.user) {
+      const userData = {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.user_metadata?.name || response.user.email,
+        token: response.session?.access_token,
+        refreshToken: response.session?.refresh_token
+      };
+
+      localStorage.setItem('user', JSON.stringify(userData));
+      return userData;
+    } else {
+      throw new Error('Login failed');
     }
-
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
   } catch (error) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||
@@ -107,7 +113,15 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
 
 // Logout user
 export const logout = createAsyncThunk('auth/logout', async () => {
-  localStorage.removeItem('user');
+  try {
+    // Use authService to logout from Supabase
+    const { authService } = await import('../../services/authService');
+    await authService.logout();
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    localStorage.removeItem('user');
+  }
 });
 
 // Update user profile

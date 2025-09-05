@@ -23,7 +23,7 @@ import axios from 'axios';
  * @property {number} REQUEST_TIMEOUT - Request timeout in milliseconds
  */
 const config = {
-  API_URL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+  API_URL: process.env.REACT_APP_API_URL || 'https://eng-ksce2gie7-omar-ibrahims-projects-9b9b5ebb.vercel.app/api',
   DEBUG_MODE: process.env.NODE_ENV === 'development',
   REQUEST_TIMEOUT: 30000, // 30 seconds
 };
